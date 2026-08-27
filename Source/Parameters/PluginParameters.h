@@ -28,6 +28,12 @@ namespace Parameters
     constexpr auto CLIP_ID = "cl";
     constexpr auto CLIP_NAME = "CLIP AT 0DB";
 
+    constexpr static auto PRE_GAIN_ID = "pr";
+    constexpr static auto PRE_GAIN_NAME = "PRE GAIN";
+
+    constexpr static auto POST_GAIN_ID = "pg";
+    constexpr static auto POST_GAIN_NAME = "POST GAIN";
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout
     createParameterLayout()
     {
@@ -74,7 +80,30 @@ namespace Parameters
                 return text.getFloatValue();
             }));
 
+        static juce::NormalisableRange<float> volumeRange(-100.0f, 12.0f, 0.1f);
+        volumeRange.setSkewForCentre(-20.0f);
+
         layout.add(std::make_unique<juce::AudioParameterBool>(CLIP_ID, CLIP_NAME, false));
+
+        auto dbAttributes = juce::AudioParameterFloatAttributes()
+                            .withLabel("dB")
+                            .withStringFromValueFunction([](const float v, int)
+                            {
+                                return v <= -99.9f ? "-inf dB" : juce::String(v, 1) + " dB";
+                            });
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            PRE_GAIN_ID,
+            PRE_GAIN_NAME,
+            volumeRange,
+            0.0f,
+            dbAttributes));
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            POST_GAIN_ID,
+            POST_GAIN_NAME,
+            volumeRange,
+            0.0f,
+            dbAttributes));
 
         return layout;
     }

@@ -50,6 +50,7 @@ target_sources(Dispenser PRIVATE
         Source/DSP/CascadeAPF.cpp
         Source/DSP/CascadeAPF.h
         Source/DSP/Clamper.h
+        Source/DSP/Gain.h
         Source/DSP/Manager.cpp
         Source/DSP/Manager.h
 )

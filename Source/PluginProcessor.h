@@ -15,6 +15,7 @@
 #include "DSP/Manager.h"
 #include "Parameters/PluginParameters.h"
 #include "DSP/Clamper.h"
+#include "DSP/Gain.h"
 
 //==============================================================================
 /**
@@ -65,11 +66,41 @@ private:
 
     Manager apf{};
 
+    Gain<> pre{};
+    Gain<> post{};
+
     std::atomic<float>* levelParam{nullptr};
     std::atomic<float>* freqParam{nullptr};
     std::atomic<float>* qParam{nullptr};
     std::atomic<float>* driftParam{nullptr};
     std::atomic<float>* clipParam{nullptr};
+    std::atomic<float>* preParam{nullptr};
+    std::atomic<float>* postParam{nullptr};
+
+    FORCE_INLINE static float fast_exp2(float const x) noexcept
+    {
+        const float i = std::floor(x);
+        const float f = x - i;
+
+        const float r = 1.0000000f + f * (0.6931472f + f * (0.2402265f + f * (0.0555041f + f * (0.0096181f + f *
+            0.0013333f))));
+
+        union
+        {
+            float f;
+            int32_t i;
+        } u{};
+        u.f = r;
+        u.i += static_cast<int32_t>(i) << 23;
+        return u.f;
+    }
+
+    FORCE_INLINE static float fastDecibelsToGain(const float decibels) noexcept
+    {
+        if (decibels <= -100.0f) return 0.0f;
+
+        return fast_exp2(decibels * 0.166096404744368f);
+    }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DispenserAudioProcessor)
 };

@@ -27,6 +27,8 @@ DispenserAudioProcessor::DispenserAudioProcessor()
     qParam = apvts.getRawParameterValue(Parameters::RESONANCE_ID);
     driftParam = apvts.getRawParameterValue(Parameters::DRIFT_ID);
     clipParam = apvts.getRawParameterValue(Parameters::CLIP_ID);
+    preParam = apvts.getRawParameterValue(Parameters::PRE_GAIN_ID);
+    postParam = apvts.getRawParameterValue(Parameters::POST_GAIN_ID);
 }
 
 DispenserAudioProcessor::~DispenserAudioProcessor()
@@ -102,6 +104,9 @@ void DispenserAudioProcessor::prepareToPlay(const double sampleRate, const int s
         .numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels())
     };
     apf.prepare(spec);
+
+    pre.prepare(spec);
+    post.prepare(spec);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -141,6 +146,9 @@ void DispenserAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
 
     const juce::dsp::AudioBlock<float> block(buffer);
 
+    pre.setGain(fastDecibelsToGain(preParam->load(std::memory_order_relaxed)));
+    pre.process(block);
+
     const auto l = static_cast<size_t>(levelParam->load(std::memory_order_relaxed));
     if (l != apf.getLevel())
     {
@@ -152,6 +160,9 @@ void DispenserAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
                   driftParam->load(std::memory_order_relaxed));
     apf.process(block);
 
+    post.setGain(fastDecibelsToGain(postParam->load(std::memory_order_relaxed)));
+    post.process(block);
+
     if (clipParam->load(std::memory_order_relaxed) > 0.5f)
         Clamper::process(block);
 }
@@ -159,6 +170,8 @@ void DispenserAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
 void DispenserAudioProcessor::reset()
 {
     apf.reset();
+    pre.reset();
+    post.reset();
 }
 
 //==============================================================================
