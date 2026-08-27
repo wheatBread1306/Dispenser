@@ -1,0 +1,80 @@
+# Build artifacts
+Builds/VisualStudio2026/Debug/
+Builds/VisualStudio2026/Release/
+Builds/VisualStudio2026/x64/
+Builds/VisualStudio2026/*.vcxproj.user
+Builds/VisualStudio2026/*/Debug/
+Builds/VisualStudio2026/*/Release/
+Builds/*/
+**/*.intermediate_files/
+**/*.dll
+**/*.exe
+**/*.lib
+**/*.obj
+**/*.ilk
+**/*.pdb
+
+# IDE and editor files
+.vs/
+.vscode/
+*.sln.DotSettings
+*.sln.DotSettings.user
+*.VC.db
+*.VC.VC.opendb
+*.vcxproj.filters
+*.vcxproj.user
+.idea/
+*.iml
+*~
+*.swp
+*.swo
+.github/
+.clangd
+
+# JUCE-specific
+JuceLibraryCode/include_*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# macOS
+.DS_Store
+*.mm.o
+*.mm.d
+
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+*.obj
+*.exp
+
+# Plugin builds
+**/*.vst3
+**/*.vst
+**/*.au
+**/*.aax
+**/*.app/
+**/*.bundle/
+
+# Output directories
+bin/
+lib/
+
+# Local config
+local.properties
+.env
+
+# Visual Studio Performance Report
+p_rep/
+
+/Util/__pycache__/
+.pyc
+Source/Util/__pycache__/noise.cpython-314.pyc
