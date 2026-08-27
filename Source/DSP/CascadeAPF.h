@@ -14,16 +14,19 @@ public:
 private:
     std::array<float, 8> s1L{};
     std::array<float, 8> s2L{};
+    std::array<float, 8> s1R{};
+    std::array<float, 8> s2R{};
 
-    double sampleRate = 44100.0;
-    double invSampleRate = 1 / 44100.0;
-    
-    std::array<float, 8> maxFrequency = {};
-    std::array<float, 8> freqToTanScaler = {};
     std::array<float, 8> a1 = {};
     std::array<float, 8> a2 = {};
     std::array<float, 8> a3 = {};
     std::array<float, 8> currentK = {};
+
+    double sampleRate = 44100.0;
+    double invSampleRate = 1 / 44100.0;
+
+    float maxFrequency = {};
+    float freqToTanScaler = {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CascadeAPF)
 };
