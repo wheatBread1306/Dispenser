@@ -49,6 +49,7 @@ target_sources(Dispenser PRIVATE
         Source/DSP/APFCore.h
         Source/DSP/CascadeAPF.cpp
         Source/DSP/CascadeAPF.h
+        Source/DSP/Clamper.h
         Source/DSP/Manager.cpp
         Source/DSP/Manager.h
 )

@@ -14,6 +14,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "DSP/Manager.h"
 #include "Parameters/PluginParameters.h"
+#include "DSP/Clamper.h"
 
 //==============================================================================
 /**
@@ -68,6 +69,7 @@ private:
     std::atomic<float>* freqParam{nullptr};
     std::atomic<float>* qParam{nullptr};
     std::atomic<float>* driftParam{nullptr};
+    std::atomic<float>* clipParam{nullptr};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DispenserAudioProcessor)
 };

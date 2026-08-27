@@ -17,7 +17,7 @@ void CascadeAPF::setParams(const float frequency, const float resonance, const f
 
     for (size_t i = 0; i < 8; ++i)
     {
-        const float detune = 1.0f + (drift * driftTable[i] * 0.05f);
+        const float detune = 1.0f + (drift * driftTable[i] * 0.27f);
         const float driftedFrequency = frequency * detune;
 
         const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
