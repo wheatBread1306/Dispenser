@@ -12,6 +12,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_core/juce_core.h>
 #include <juce_dsp/juce_dsp.h>
+#include "DSP/CascadeAPF.h"
 
 //==============================================================================
 /**
@@ -23,9 +24,11 @@ public:
     ~DispenserAudioProcessor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
-    void releaseResources() override;
+    void releaseResources() override{}
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+
+    void reset() override;
 
     bool hasEditor() const override;
 
@@ -53,6 +56,8 @@ protected:
 
 private:
     juce::AudioProcessorEditor* createEditor() override;
+
+    CascadeAPF apf{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DispenserAudioProcessor)
 };

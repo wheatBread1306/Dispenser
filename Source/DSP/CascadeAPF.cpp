@@ -40,23 +40,26 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
 
         for (size_t s = 0; s < numSamples; ++s)
         {
-            float input = buffer[s];
+            std::array<float, 8> stageInputs{};
+            stageInputs[0] = buffer[s];
+            for (size_t i = 1; i < 8; ++i)
+            {
+                stageInputs[i] = stageOutHistoryL[i - 1];
+            }
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float v3 = input - s2L[i];
+                const float v3 = stageInputs[i] - s2L[i];
                 const float v1 = a1[i] * s1L[i] + a2[i] * v3;
                 const float v2 = s2L[i] + a2[i] * s1L[i] + a3[i] * v3;
 
-                s1L[i] = std::fma(2.0f, v1, -s1L[i]);
-                s2L[i] = std::fma(2.0f, v2, -s2L[i]);
+                s1L[i] = 2.0f * v1 - s1L[i];
+                s2L[i] = 2.0f * v2 - s2L[i];
 
-                const float bp = v1;
-
-                input = input - 2.0f * currentK[i] * bp;
+                stageOutHistoryL[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
             }
 
-            buffer[s] = input;
+            buffer[s] = stageOutHistoryL[7];
         }
     }
 
@@ -68,23 +71,25 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
 
         for (size_t s = 0; s < numSamples; ++s)
         {
-            float input = buffer[s];
+            std::array<float, 8> stageInputs{};
+            stageInputs[0] = buffer[s];
+            for (size_t i = 1; i < 8; ++i)
+            {
+                stageInputs[i] = stageOutHistoryR[i - 1];
+            }
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float v3 = input - s2L[i];
+                const float v3 = stageInputs[i] - s2R[i];
                 const float v1 = a1[i] * s1R[i] + a2[i] * v3;
                 const float v2 = s2R[i] + a2[i] * s1R[i] + a3[i] * v3;
 
-                s1R[i] = std::fma(2.0f, v1, -s1R[i]);
-                s2R[i] = std::fma(2.0f, v2, -s2R[i]);
+                s1R[i] = 2.0f * v1 - s1R[i];
+                s2R[i] = 2.0f * v2 - s2R[i];
 
-                const float bp = v1;
-
-                input = input - 2.0f * currentK[i] * bp;
+                stageOutHistoryR[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
             }
-
-            buffer[s] = input;
+            buffer[s] = stageOutHistoryR[7];
         }
     }
 }
