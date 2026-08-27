@@ -10,7 +10,7 @@ public:
 
     void prepare(const juce::dsp::ProcessSpec& spec) noexcept;
     void process(const juce::dsp::AudioBlock<float>& block) noexcept;
-    void setParams(float frequency, float resonance) noexcept;
+    void setParams(float frequency, float resonance, float drift) noexcept;
     void reset() noexcept;
 
     void setLevel(const size_t newLevel) noexcept

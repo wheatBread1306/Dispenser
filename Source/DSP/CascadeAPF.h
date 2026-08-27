@@ -9,10 +9,11 @@ public:
 
     void prepare(const juce::dsp::ProcessSpec& spec) noexcept;
     void process(const juce::dsp::AudioBlock<float>& block) noexcept;
-    void setParams(float frequency, float resonance) noexcept;
+    void setParams(float frequency, float resonance, float drift) noexcept;
     void reset() noexcept;
 
-    [[nodiscard]] static size_t getLatency() noexcept {return 7;}
+    [[nodiscard]] static size_t getLatency() noexcept { return 7; }
+
 private:
     alignas(32) std::array<float, 8> a1 = {};
     alignas(32) std::array<float, 8> a2 = {};

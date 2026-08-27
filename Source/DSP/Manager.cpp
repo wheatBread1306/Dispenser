@@ -16,11 +16,11 @@ void Manager::process(const juce::dsp::AudioBlock<float>& block) noexcept
     }
 }
 
-void Manager::setParams(const float frequency, const float resonance) noexcept
+void Manager::setParams(const float frequency, const float resonance, const float drift) noexcept
 {
     for (auto& apf : apfs)
     {
-        apf.setParams(frequency,resonance);
+        apf.setParams(frequency,resonance,drift);
     }
 }
 

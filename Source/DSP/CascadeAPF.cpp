@@ -8,23 +8,33 @@ void CascadeAPF::prepare(const juce::dsp::ProcessSpec& spec) noexcept
     reset();
 }
 
-void CascadeAPF::setParams(const float frequency, const float resonance) noexcept
+void CascadeAPF::setParams(const float frequency, const float resonance, const float drift) noexcept
 {
-    const float limitedFrequency = std::clamp(frequency, 0.0f, maxFrequency);
+    static constexpr float driftTable[8] = {
+        -0.12f, 0.05f, -0.08f, 0.15f,
+        -0.03f, 0.11f, -0.07f, 0.02f
+    };
 
-    const float x = limitedFrequency * freqToTanScaler;
-    const float g = x * (1.0f + (x * x) * 0.333333f); // tan近似
+    for (size_t i = 0; i < 8; ++i)
+    {
+        const float detune = 1.0f + (drift * driftTable[i] * 0.05f);
+        const float driftedFrequency = frequency * detune;
 
-    // FIX: Use std::max to enforce a lower bound for resonance
-    const float k = 1.0f / std::max(resonance, 0.001f);
+        const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
 
-    const float denominator = 1.0f + g * (g + k);
-    const float invDenominator = 1.0f / denominator;
+        const float x = limitedFrequency * freqToTanScaler;
+        const float g = x * (1.0f + (x * x) * 0.333333f);
 
-    a1.fill(invDenominator);
-    a2.fill(g * invDenominator);
-    a3.fill(g * g * invDenominator);
-    currentK.fill(k);
+        const float k = 1.0f / std::max(resonance, 0.001f);
+
+        const float denominator = 1.0f + g * (g + k);
+        const float invDenominator = 1.0f / denominator;
+
+        a1[i] = invDenominator;
+        a2[i] = (g * invDenominator);
+        a3[i] = (g * g * invDenominator);
+        currentK[i] = (k);
+    }
 }
 
 void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept

@@ -22,6 +22,9 @@ namespace Parameters
     constexpr auto RESONANCE_ID = "res";
     constexpr auto RESONANCE_NAME = "RESONANCE";
 
+    constexpr auto DRIFT_ID = "dr";
+    constexpr auto DRIFT_NAME = "DRIFT";
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout
     createParameterLayout()
     {
@@ -31,7 +34,7 @@ namespace Parameters
 
         layout.add(std::make_unique<juce::AudioParameterFloat>(
             FREQUENCY_ID, FREQUENCY_NAME,
-            juce::NormalisableRange<float>(100.0f, 20000.0f), 8000.0f,
+            juce::NormalisableRange<float>(100.0f, 20000.0f,500.0f), 8000.0f,
             juce::String(), juce::AudioProcessorParameter::genericParameter,
             [](const float value, int)
             {
@@ -45,6 +48,19 @@ namespace Parameters
         layout.add(std::make_unique<juce::AudioParameterFloat>(
             RESONANCE_ID, RESONANCE_NAME,
             juce::NormalisableRange<float>(0.1f, 10.0f), 0.707f,
+            juce::String(), juce::AudioProcessorParameter::genericParameter,
+            [](const float value, int)
+            {
+                return juce::String(value, 2);
+            },
+            [](const juce::String& text)
+            {
+                return text.getFloatValue();
+            }));
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            DRIFT_ID, DRIFT_NAME,
+            juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f,
             juce::String(), juce::AudioProcessorParameter::genericParameter,
             [](const float value, int)
             {

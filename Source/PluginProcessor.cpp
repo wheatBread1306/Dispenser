@@ -25,6 +25,7 @@ DispenserAudioProcessor::DispenserAudioProcessor()
     levelParam = apvts.getRawParameterValue(Parameters::LEVEL_ID);
     freqParam = apvts.getRawParameterValue(Parameters::FREQUENCY_ID);
     qParam = apvts.getRawParameterValue(Parameters::RESONANCE_ID);
+    driftParam = apvts.getRawParameterValue(Parameters::DRIFT_ID);
 }
 
 DispenserAudioProcessor::~DispenserAudioProcessor()
@@ -146,7 +147,8 @@ void DispenserAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
         setLatencySamples(apf.getLatency());
     }
 
-    apf.setParams(freqParam->load(std::memory_order_relaxed), qParam->load(std::memory_order_relaxed));
+    apf.setParams(freqParam->load(std::memory_order_relaxed), qParam->load(std::memory_order_relaxed),
+                  driftParam->load(std::memory_order_relaxed));
     apf.process(block);
 }
 
