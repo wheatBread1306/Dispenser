@@ -16,8 +16,12 @@ namespace Parameters
     constexpr auto LEVEL_ID = "lev";
     constexpr auto LEVEL_NAME = "LEVEL";
 
+    constexpr auto FREQUENCY_ID = "fq";
+    constexpr auto FREQUENCY_NAME = "FREQUENCY";
 
-    // パラメータのセットアップ関数
+    constexpr auto RESONANCE_ID = "res";
+    constexpr auto RESONANCE_NAME = "RESONANCE";
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout
     createParameterLayout()
     {
@@ -25,6 +29,31 @@ namespace Parameters
 
         layout.add(std::make_unique<juce::AudioParameterInt>(LEVEL_ID, LEVEL_NAME, 1, 8, 1));
 
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            FREQUENCY_ID, FREQUENCY_NAME,
+            juce::NormalisableRange<float>(100.0f, 20000.0f), 8000.0f,
+            juce::String(), juce::AudioProcessorParameter::genericParameter,
+            [](const float value, int)
+            {
+                return juce::String(value, 2);
+            },
+            [](const juce::String& text)
+            {
+                return text.getFloatValue();
+            }));
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            RESONANCE_ID, RESONANCE_NAME,
+            juce::NormalisableRange<float>(0.1f, 10.0f), 0.707f,
+            juce::String(), juce::AudioProcessorParameter::genericParameter,
+            [](const float value, int)
+            {
+                return juce::String(value, 2);
+            },
+            [](const juce::String& text)
+            {
+                return text.getFloatValue();
+            }));
 
         return layout;
     }

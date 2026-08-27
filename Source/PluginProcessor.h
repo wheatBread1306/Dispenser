@@ -65,6 +65,8 @@ private:
     Manager apf{};
 
     std::atomic<float>* levelParam{nullptr};
+    std::atomic<float>* freqParam{nullptr};
+    std::atomic<float>* qParam{nullptr};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DispenserAudioProcessor)
 };
