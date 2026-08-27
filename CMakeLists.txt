@@ -43,10 +43,14 @@ target_sources(Dispenser PRIVATE
         Source/PluginEditor.cpp
         Source/PluginEditor.h
 
+        Source/Parameters/PluginParameters.h
+
         Source/DSP/APFCore.cpp
         Source/DSP/APFCore.h
         Source/DSP/CascadeAPF.cpp
         Source/DSP/CascadeAPF.h
+        Source/DSP/Manager.cpp
+        Source/DSP/Manager.h
 )
 
 # リンクするモジュール

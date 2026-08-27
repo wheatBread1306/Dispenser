@@ -22,6 +22,7 @@ DispenserAudioProcessor::DispenserAudioProcessor()
     )
 #endif
 {
+    levelParam = apvts.getRawParameterValue(Parameters::LEVEL_ID);
 }
 
 DispenserAudioProcessor::~DispenserAudioProcessor()
@@ -135,9 +136,16 @@ void DispenserAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
         buffer.clear(i, 0, buffer.getNumSamples());
 
     const juce::dsp::AudioBlock<float> block(buffer);
+
+    const auto l = static_cast<size_t>(levelParam->load(std::memory_order_relaxed));
+    if (l != apf.getLevel())
+    {
+        apf.setLevel(l);
+        setLatencySamples(apf.getLatency());
+    }
+
     apf.setParams(140.0f, 10.0f);
     apf.process(block);
-
 }
 
 void DispenserAudioProcessor::reset()
@@ -153,21 +161,24 @@ bool DispenserAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* DispenserAudioProcessor::createEditor()
 {
-    return new DispenserAudioProcessorEditor(*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
 void DispenserAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    const auto state = apvts.copyState();
+    const std::unique_ptr xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void DispenserAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState != nullptr)
+        if (xmlState->hasTagName(apvts.state.getType()))
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
 //==============================================================================
