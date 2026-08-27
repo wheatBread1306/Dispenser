@@ -19,7 +19,7 @@
 class DispenserAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    DispenserAudioProcessorEditor (DispenserAudioProcessor&);
+    explicit DispenserAudioProcessorEditor (DispenserAudioProcessor&);
     ~DispenserAudioProcessorEditor() override;
 
     //==============================================================================

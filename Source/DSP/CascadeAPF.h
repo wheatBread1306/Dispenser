@@ -12,23 +12,20 @@ public:
     void setParams(float frequency, float resonance) noexcept;
     void reset() noexcept;
 
-    [[nodiscard]] static size_t getLatency() noexcept {return 8;}
+    [[nodiscard]] static size_t getLatency() noexcept {return 7;}
 private:
-    std::array<float, 8> a1 = {};
-    std::array<float, 8> a2 = {};
-    std::array<float, 8> a3 = {};
-    std::array<float, 8> currentK = {};
+    alignas(32) std::array<float, 8> a1 = {};
+    alignas(32) std::array<float, 8> a2 = {};
+    alignas(32) std::array<float, 8> a3 = {};
+    alignas(32) std::array<float, 8> currentK = {};
 
-    std::array<float, 8> s1L{};
-    std::array<float, 8> s2L{};
-    std::array<float, 8> s1R{};
-    std::array<float, 8> s2R{};
+    alignas(32) std::array<float, 8> s1L{};
+    alignas(32) std::array<float, 8> s2L{};
+    alignas(32) std::array<float, 8> s1R{};
+    alignas(32) std::array<float, 8> s2R{};
 
-    std::array<float, 8> stageOutHistoryL{};
-    std::array<float, 8> stageOutHistoryR{};
-
-    double sampleRate = 44100.0;
-    double invSampleRate = 1 / 44100.0;
+    alignas(32) std::array<float, 8> stageOutHistoryL{};
+    alignas(32) std::array<float, 8> stageOutHistoryR{};
 
     float maxFrequency = {};
     float freqToTanScaler = {};

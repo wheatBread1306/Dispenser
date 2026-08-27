@@ -2,11 +2,8 @@
 
 void CascadeAPF::prepare(const juce::dsp::ProcessSpec& spec) noexcept
 {
-    sampleRate = spec.sampleRate;
-    invSampleRate = 1.0f / sampleRate;
-
-    maxFrequency = static_cast<float>(sampleRate) * 0.49f;
-    freqToTanScaler = juce::MathConstants<float>::pi * static_cast<float>(invSampleRate);
+    maxFrequency = static_cast<float>(spec.sampleRate) * 0.49f;
+    freqToTanScaler = juce::MathConstants<float>::pi * static_cast<float>(1.0 / spec.sampleRate);
 
     reset();
 }
@@ -100,4 +97,7 @@ void CascadeAPF::reset() noexcept
     s2L.fill(0.0f);
     s1R.fill(0.0f);
     s2R.fill(0.0f);
+
+    stageOutHistoryL.fill(0.0f);
+    stageOutHistoryR.fill(0.0f);
 }
