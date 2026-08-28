@@ -55,6 +55,8 @@ The supplied configuration is primarily set up for Windows builds with MSVC or C
 
 ## Building
 
+### Pre-built VST3 and standalone binaries are available for Windows.
+
 Configure the project with CMake from the repository root. The following example uses the Visual Studio 2022 generator:
 
 ```powershell
