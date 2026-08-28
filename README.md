@@ -7,6 +7,9 @@ Dispenser is a stereo phase disperser audio effect. It is built with JUCE and co
 
 The project currently produces a VST3 plug-in and a standalone application.
 
+
+<img src="img.png" width="50%" height="50%">
+
 ## Features
 
 The filter core is optimized with AVX2: one 256-bit YMM register is treated as eight 32-bit lanes, allowing the eight filters to be calculated in parallel for each sample.
