@@ -36,7 +36,7 @@ YMM register (256-bit)
 
 | Control | Range | Default | Description |
 | --- | ---: | ---: | --- |
-| Stack | 1-8 | 1 | Number of cascaded filter stages |
+| Stack | 1-8 | 1 | Number of cascaded filter stages (Each stages have 8 filters)|
 | Frequency | 40-20,000 Hz | 1,000 Hz | Main filter frequency |
 | Resonance | 0.1-10.0 Q | 0.707 Q | Filter resonance |
 | Drift | 0-1 | 0 | Amount of per-stage frequency variation |
