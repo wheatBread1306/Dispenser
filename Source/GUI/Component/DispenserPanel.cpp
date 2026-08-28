@@ -10,7 +10,7 @@ DispenserPanel::DispenserPanel(DispenserAudioProcessor& processorToUse)
     titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible(titleLabel);
 
-    subtitleLabel.setText("ADAPTIVE PHASE FILTER", juce::dontSendNotification);
+    subtitleLabel.setText("PHASE DISPERSER", juce::dontSendNotification);
     subtitleLabel.setFont(juce::FontOptions(11.0f));
     subtitleLabel.setColour(juce::Label::textColourId, juce::Colours::whitesmoke);
     addAndMakeVisible(subtitleLabel);

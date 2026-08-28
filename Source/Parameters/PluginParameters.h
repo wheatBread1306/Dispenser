@@ -14,7 +14,7 @@
 namespace Parameters
 {
     constexpr auto LEVEL_ID = "lev";
-    constexpr auto LEVEL_NAME = "LEVEL";
+    constexpr auto LEVEL_NAME = "STACK";
 
     constexpr auto FREQUENCY_ID = "fq";
     constexpr auto FREQUENCY_NAME = "FREQUENCY";
