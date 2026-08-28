@@ -8,7 +8,7 @@ Dispenser is a stereo phase disperser audio effect. It is built with JUCE and co
 The project currently produces a VST3 plug-in and a standalone application.
 
 
-<img src="img.png" width="50%" height="50%">
+<img src="img.png" width="40%" height="40%">
 
 ## Features
 
