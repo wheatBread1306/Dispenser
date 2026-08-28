@@ -15,11 +15,6 @@ public:
     [[nodiscard]] static size_t getLatency() noexcept { return 7; }
 
 private:
-    alignas(32) std::array<float, 8> a1 = {};
-    alignas(32) std::array<float, 8> a2 = {};
-    alignas(32) std::array<float, 8> a3 = {};
-    alignas(32) std::array<float, 8> currentK = {};
-
     alignas(32) std::array<float, 8> s1L{};
     alignas(32) std::array<float, 8> s2L{};
     alignas(32) std::array<float, 8> s1R{};
@@ -28,6 +23,11 @@ private:
     alignas(32) std::array<float, 8> stageOutHistoryL{};
     alignas(32) std::array<float, 8> stageOutHistoryR{};
 
+    juce::SmoothedValue<float> freqSmoothed{};
+    juce::SmoothedValue<float> resSmoothed{};
+    juce::SmoothedValue<float> driftSmoothed{};
+
+    double currentSampleRate = 44100.0;
     float maxFrequency = {};
     float freqToTanScaler = {};
 
