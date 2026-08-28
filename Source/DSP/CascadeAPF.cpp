@@ -1,13 +1,5 @@
 #include "CascadeAPF.h"
 
-namespace
-{
-    constexpr float driftTable[8] = {
-        -0.12f, 0.05f, -0.08f, 0.15f,
-        -0.03f, 0.11f, -0.07f, 0.02f
-    };
-}
-
 void CascadeAPF::prepare(const juce::dsp::ProcessSpec& spec) noexcept
 {
     currentSampleRate = spec.sampleRate;
@@ -34,6 +26,11 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
     auto rL = resSmoothed;
 
     {
+        static constexpr float driftTable[8] = {
+            -0.12f, 0.05f, -0.08f, 0.15f,
+            -0.03f, 0.11f, -0.07f, 0.02f
+        };
+
         auto* __restrict buffer = block.getChannelPointer(0);
 
         for (size_t s = 0; s < numSamples; ++s)
@@ -43,14 +40,14 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
             const float resIn = rL.getNextValue();
             const float k = 1.0f / std::max(resIn, 0.001f);
 
-            std::array<float,8> a1{};
-            std::array<float,8> a2{};
-            std::array<float,8> a3{};
-            std::array<float,8> currentK{};
+            std::array<float, 8> a1{};
+            std::array<float, 8> a2{};
+            std::array<float, 8> a3{};
+            std::array<float, 8> currentK{};
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float detune = 1.0f + (driftIn * driftTable[i] * 0.27f);
+                const float detune = fast_exp2(driftIn * driftTable[i] * 6.37f);
                 const float driftedFrequency = freqIn * detune;
 
                 const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
@@ -105,6 +102,11 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
     {
         auto* __restrict buffer = block.getChannelPointer(1);
 
+        static constexpr float driftTable[8] = {
+            -0.12f, -0.08f, 0.11f, -0.03f,
+            0.15f, -0.07f, 0.02f, -0.07f
+        };
+
         for (size_t s = 0; s < numSamples; ++s)
         {
             const float driftIn = dR.getNextValue();
@@ -112,14 +114,14 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
             const float resIn = rR.getNextValue();
             const float k = 1.0f / std::max(resIn, 0.001f);
 
-            std::array<float,8> a1{};
-            std::array<float,8> a2{};
-            std::array<float,8> a3{};
-            std::array<float,8> currentK{};
+            std::array<float, 8> a1{};
+            std::array<float, 8> a2{};
+            std::array<float, 8> a3{};
+            std::array<float, 8> currentK{};
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float detune = 1.0f + (driftIn * driftTable[i] * 0.27f);
+                const float detune = fast_exp2(driftIn * driftTable[i] * 6.37f);
                 const float driftedFrequency = freqIn * detune;
 
                 const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
