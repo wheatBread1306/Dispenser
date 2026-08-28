@@ -1,5 +1,26 @@
 #include "CascadeAPF.h"
 
+namespace
+{
+    float fast_exp2(float const x) noexcept
+    {
+        const float i = std::floor(x);
+        const float f = x - i;
+
+        const float r = 1.0000000f + f * (0.6931472f + f * (0.2402265f + f * (0.0555041f + f * (0.0096181f + f *
+            0.0013333f))));
+
+        union
+        {
+            float f;
+            int32_t i;
+        } u{};
+        u.f = r;
+        u.i += static_cast<int32_t>(i) << 23;
+        return u.f;
+    }
+}
+
 void CascadeAPF::prepare(const juce::dsp::ProcessSpec& spec) noexcept
 {
     currentSampleRate = spec.sampleRate;
