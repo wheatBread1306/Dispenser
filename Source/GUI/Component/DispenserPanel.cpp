@@ -7,12 +7,12 @@ DispenserPanel::DispenserPanel(DispenserAudioProcessor& processorToUse)
 {
     titleLabel.setText("DISPENSER", juce::dontSendNotification);
     titleLabel.setFont(juce::FontOptions(27.0f).withStyle("bold"));
-    titleLabel.setColour(juce::Label::textColourId, juce::Colour(0xffe8c477));
+    titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible(titleLabel);
 
     subtitleLabel.setText("ADAPTIVE PHASE FILTER", juce::dontSendNotification);
     subtitleLabel.setFont(juce::FontOptions(11.0f));
-    subtitleLabel.setColour(juce::Label::textColourId, juce::Colour(0xff82918e));
+    subtitleLabel.setColour(juce::Label::textColourId, juce::Colours::whitesmoke);
     addAndMakeVisible(subtitleLabel);
 
     configureSlider(levelSlider, "LEVEL");
@@ -48,11 +48,7 @@ void DispenserPanel::paint(juce::Graphics& g)
 {
     const auto bounds = getLocalBounds().toFloat();
 
-    g.fillAll(juce::Colour(0xff101416));
-    g.setColour(juce::Colour(0xff1b2425));
-    g.fillRoundedRectangle(bounds.reduced(12.0f), 8.0f);
-
-    g.setColour(juce::Colour(0xffd5a85b));
+    g.setColour(juce::Colours::whitesmoke);
     const float lineY = subtitleLabel.getBottom() + 2.0f;
     g.fillRect(28.0f, lineY, bounds.getWidth() - 56.0f, 2.0f);
 
@@ -62,7 +58,7 @@ void DispenserPanel::paint(juce::Graphics& g)
         { &preGainSlider, "PRE GAIN" }, { &postGainSlider, "POST GAIN" }
     }};
 
-    g.setColour(juce::Colour(0xffd9e2df));
+    g.setColour(juce::Colours::white);
     g.setFont(juce::FontOptions(11.0f));
     for (const auto& [slider, label] : labels)
     {
