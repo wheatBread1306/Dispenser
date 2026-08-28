@@ -10,12 +10,12 @@ DispenserPanel::DispenserPanel(DispenserAudioProcessor& processorToUse)
     titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible(titleLabel);
 
-    subtitleLabel.setText("PHASE DISPERSER", juce::dontSendNotification);
+    subtitleLabel.setText("PHASE DISPERSER by WheatBreadPlugins", juce::dontSendNotification);
     subtitleLabel.setFont(juce::FontOptions(11.0f));
     subtitleLabel.setColour(juce::Label::textColourId, juce::Colours::whitesmoke);
     addAndMakeVisible(subtitleLabel);
 
-    configureSlider(levelSlider, "LEVEL");
+    configureSlider(levelSlider, "STACK");
     configureSlider(frequencySlider, "FREQUENCY");
     configureSlider(resonanceSlider, "RESONANCE");
     configureSlider(driftSlider, "DRIFT");
@@ -53,7 +53,7 @@ void DispenserPanel::paint(juce::Graphics& g)
     g.fillRect(28.0f, lineY, bounds.getWidth() - 56.0f, 2.0f);
 
     const std::array<std::pair<const juce::Slider*, juce::String>, 6> labels {{
-        { &levelSlider, "LEVEL" }, { &frequencySlider, "FREQUENCY" },
+        { &levelSlider, "STACK" }, { &frequencySlider, "FREQUENCY" },
         { &resonanceSlider, "RESONANCE" }, { &driftSlider, "DRIFT" },
         { &preGainSlider, "PRE GAIN" }, { &postGainSlider, "POST GAIN" }
     }};
