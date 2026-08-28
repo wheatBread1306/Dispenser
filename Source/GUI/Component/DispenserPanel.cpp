@@ -56,10 +56,6 @@ void DispenserPanel::paint(juce::Graphics& g)
     const float lineY = subtitleLabel.getBottom() + 2.0f;
     g.fillRect(28.0f, lineY, bounds.getWidth() - 56.0f, 2.0f);
 
-    g.setColour(juce::Colour(0xff82918e));
-    g.setFont(juce::FontOptions(10.0f));
-    g.drawText("FILTER PARAMETERS", 28, lineY + 5.0f, bounds.getWidth() - 56, 16, juce::Justification::centredLeft);
-
     const std::array<std::pair<const juce::Slider*, juce::String>, 6> labels {{
         { &levelSlider, "LEVEL" }, { &frequencySlider, "FREQUENCY" },
         { &resonanceSlider, "RESONANCE" }, { &driftSlider, "DRIFT" },
@@ -108,7 +104,7 @@ void DispenserPanel::resized()
     setSlider(preGainSlider,  bottomRow.removeFromLeft(cellW3));
     setSlider(postGainSlider, bottomRow.removeFromLeft(cellW3));
 
-    const auto btnArea = bottomRow.reduced(10, bottomRow.getHeight() * 0.2f);
+    const auto btnArea = bottomRow.reduced(cellW3 * 0.16f, bottomRow.getHeight() * 0.3f);
     clipButton.setBounds(btnArea.toNearestInt());
 }
 

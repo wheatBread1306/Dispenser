@@ -15,7 +15,7 @@ DispenserAudioProcessorEditor::DispenserAudioProcessorEditor (DispenserAudioProc
 {
   setLookAndFeel(&lookAndFeel);
   addAndMakeVisible(panel);
-  setSize(760, 500);
+  setSize(550, 400);
 }
 
 DispenserAudioProcessorEditor::~DispenserAudioProcessorEditor()

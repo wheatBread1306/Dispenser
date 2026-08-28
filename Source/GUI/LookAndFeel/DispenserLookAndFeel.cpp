@@ -66,7 +66,7 @@ void DispenserLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButto
     g.fillEllipse(xPos, buttonArea.getY() + 4.0f, circleSize, circleSize);
 
     g.setColour(juce::Colour(0xffd9e2df));
-    const float fontSize = juce::jmin(14.0f, buttonArea.getHeight() * 0.5f);
+    const float fontSize = juce::jmin(11.0f, buttonArea.getHeight() * 0.5f);
     g.setFont(juce::FontOptions(fontSize));
     const auto textRect = isOn
                               ? buttonArea.withTrimmedRight(circleSize + 4.0f)
