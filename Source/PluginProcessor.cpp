@@ -182,7 +182,7 @@ bool DispenserAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* DispenserAudioProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new DispenserAudioProcessorEditor(*this);
 }
 
 //==============================================================================

@@ -43,6 +43,11 @@ target_sources(Dispenser PRIVATE
         Source/PluginEditor.cpp
         Source/PluginEditor.h
 
+        Source/GUI/Component/DispenserPanel.cpp
+        Source/GUI/Component/DispenserPanel.h
+        Source/GUI/LookAndFeel/DispenserLookAndFeel.cpp
+        Source/GUI/LookAndFeel/DispenserLookAndFeel.h
+
         Source/Parameters/PluginParameters.h
 
         Source/DSP/APFCore.cpp

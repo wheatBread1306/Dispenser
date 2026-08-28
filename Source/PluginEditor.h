@@ -12,6 +12,8 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
+#include "GUI/Component/DispenserPanel.h"
+#include "GUI/LookAndFeel/DispenserLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -30,6 +32,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     DispenserAudioProcessor& audioProcessor;
+    DispenserLookAndFeel lookAndFeel;
+    DispenserPanel panel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DispenserAudioProcessorEditor)
 };
