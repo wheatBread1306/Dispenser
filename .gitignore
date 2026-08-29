@@ -28,7 +28,6 @@ Builds/*/
 *~
 *.swp
 *.swo
-.github/
 .clangd
 
 # JUCE-specific
