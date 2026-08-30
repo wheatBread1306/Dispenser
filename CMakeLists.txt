@@ -50,8 +50,6 @@ target_sources(Dispenser PRIVATE
 
         Source/Parameters/PluginParameters.h
 
-        Source/DSP/APFCore.cpp
-        Source/DSP/APFCore.h
         Source/DSP/CascadeAPF.cpp
         Source/DSP/CascadeAPF.h
         Source/DSP/Clamper.h
