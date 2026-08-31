@@ -33,6 +33,12 @@ private:
         }
     };
 
+    void processFilterImpl(
+        float* __restrict buffer,
+        filterHistory& hist,
+        const std::array<float, 8>& driftTable,
+        size_t numSamples) const noexcept;
+
     filterHistory lCh{};
     filterHistory rCh{};
 

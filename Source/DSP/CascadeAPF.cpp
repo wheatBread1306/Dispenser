@@ -1,8 +1,16 @@
 #include "CascadeAPF.h"
 
+#if defined(_MSC_VER)
+// MSVC or clang-cl in MSVC mode
+#define FORCE_INLINE __forceinline
+#elif defined(__clang__)
+// Clang native
+#define FORCE_INLINE [[clang::always_inline]] inline
+#endif
+
 namespace
 {
-    float fast_exp2(float const x) noexcept
+    FORCE_INLINE float fast_exp2(float const x) noexcept
     {
         const float i = std::floor(x);
         const float f = x - i;
@@ -19,6 +27,16 @@ namespace
         u.i += static_cast<int32_t>(i) << 23;
         return u.f;
     }
+
+    constexpr std::array driftTableL = {
+        -0.12f, -0.08f, 0.11f, -0.03f,
+        0.15f, -0.07f, 0.02f, -0.07f
+    };
+
+    constexpr std::array driftTableR = {
+        -0.12f, 0.05f, -0.08f, 0.15f,
+        -0.03f, 0.11f, -0.07f, 0.02f
+    };
 }
 
 void CascadeAPF::prepare(const juce::dsp::ProcessSpec& spec) noexcept
@@ -37,153 +55,86 @@ void CascadeAPF::setParams(const float frequency, const float resonance, const f
     driftSmoothed.setTargetValue(drift);
 }
 
+FORCE_INLINE void CascadeAPF::processFilterImpl(
+    float* __restrict buffer,
+    filterHistory& hist,
+    const std::array<float, 8>& driftTable,
+    const size_t numSamples) const noexcept
+{
+    auto dIn = driftSmoothed;
+    auto fIn = freqSmoothed;
+    auto rIn = resSmoothed;
+
+    for (size_t s = 0; s < numSamples; ++s)
+    {
+        const float driftIn = dIn.getNextValue();
+        const float freqIn = fIn.getNextValue();
+        const float resIn = rIn.getNextValue();
+        const float k = 1.0f / std::max(resIn, 0.001f);
+
+        std::array<float, 8> a1{};
+        std::array<float, 8> a2{};
+        std::array<float, 8> a3{};
+        std::array<float, 8> currentK{};
+
+        for (size_t i = 0; i < 8; ++i)
+        {
+            const float detune = fast_exp2(driftIn * driftTable[i] * 6.37f);
+            const float driftedFrequency = freqIn * detune;
+
+            const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
+
+            const float x = limitedFrequency * freqToTanScaler;
+            const float g = x * (1.0f + (x * x) * 0.333333f);
+
+            const float denominator = 1.0f + g * (g + k);
+            const float invDenominator = 1.0f / denominator;
+
+            a1[i] = invDenominator;
+            a2[i] = (g * invDenominator);
+            a3[i] = (g * g * invDenominator);
+            currentK[i] = (k);
+        }
+
+        std::array<float, 8> stageInputs{};
+        stageInputs[0] = buffer[s];
+        for (size_t i = 1; i < 8; ++i)
+        {
+            stageInputs[i] = hist.stageOutHistory[i - 1];
+        }
+
+        for (size_t i = 0; i < 8; ++i)
+        {
+            const float v3 = stageInputs[i] - hist.s2[i];
+            const float v1 = a1[i] * hist.s1[i] + a2[i] * v3;
+            const float v2 = hist.s2[i] + a2[i] * hist.s1[i] + a3[i] * v3;
+
+            hist.s1[i] = 2.0f * v1 - hist.s1[i];
+            hist.s2[i] = 2.0f * v2 - hist.s2[i];
+
+            hist.stageOutHistory[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
+        }
+        buffer[s] = hist.stageOutHistory[7];
+    }
+}
+
 void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
 {
     const auto numChannels = std::min(block.getNumChannels(), 2uz);
     const auto numSamples = block.getNumSamples();
 
-    auto dL = driftSmoothed;
-    auto fL = freqSmoothed;
-    auto rL = resSmoothed;
+    auto* __restrict bufferL = block.getChannelPointer(0);
+    processFilterImpl(bufferL, lCh, driftTableL, numSamples);
 
+    if (numChannels >= 2) [[likely]]
     {
-        static constexpr float driftTable[8] = {
-            -0.12f, 0.05f, -0.08f, 0.15f,
-            -0.03f, 0.11f, -0.07f, 0.02f
-        };
-
-        auto* __restrict buffer = block.getChannelPointer(0);
-
-        for (size_t s = 0; s < numSamples; ++s)
-        {
-            const float driftIn = dL.getNextValue();
-            const float freqIn = fL.getNextValue();
-            const float resIn = rL.getNextValue();
-            const float k = 1.0f / std::max(resIn, 0.001f);
-
-            std::array<float, 8> a1{};
-            std::array<float, 8> a2{};
-            std::array<float, 8> a3{};
-            std::array<float, 8> currentK{};
-
-            for (size_t i = 0; i < 8; ++i)
-            {
-                const float detune = fast_exp2(driftIn * driftTable[i] * 6.37f);
-                const float driftedFrequency = freqIn * detune;
-
-                const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
-
-                const float x = limitedFrequency * freqToTanScaler;
-                const float g = x * (1.0f + (x * x) * 0.333333f);
-
-                const float denominator = 1.0f + g * (g + k);
-                const float invDenominator = 1.0f / denominator;
-
-                a1[i] = invDenominator;
-                a2[i] = (g * invDenominator);
-                a3[i] = (g * g * invDenominator);
-                currentK[i] = (k);
-            }
-
-            std::array<float, 8> stageInputs{};
-            stageInputs[0] = buffer[s];
-            for (size_t i = 1; i < 8; ++i)
-            {
-                stageInputs[i] = lCh.stageOutHistory[i - 1];
-            }
-
-            for (size_t i = 0; i < 8; ++i)
-            {
-                const float v3 = stageInputs[i] - lCh.s2[i];
-                const float v1 = a1[i] * lCh.s1[i] + a2[i] * v3;
-                const float v2 = lCh.s2[i] + a2[i] * lCh.s1[i] + a3[i] * v3;
-
-                lCh.s1[i] = 2.0f * v1 - lCh.s1[i];
-                lCh.s2[i] = 2.0f * v2 - lCh.s2[i];
-
-                lCh.stageOutHistory[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
-            }
-
-            buffer[s] = lCh.stageOutHistory[7];
-        }
+        auto* __restrict bufferR = block.getChannelPointer(1);
+        processFilterImpl(bufferR, rCh, driftTableR, numSamples);
     }
 
-    if (numChannels < 2)
-    {
-        driftSmoothed = dL;
-        freqSmoothed = fL;
-        resSmoothed = rL;
-        return;
-    }
-
-    auto dR = driftSmoothed;
-    auto fR = freqSmoothed;
-    auto rR = resSmoothed;
-
-    {
-        auto* __restrict buffer = block.getChannelPointer(1);
-
-        static constexpr float driftTable[8] = {
-            -0.12f, -0.08f, 0.11f, -0.03f,
-            0.15f, -0.07f, 0.02f, -0.07f
-        };
-
-        for (size_t s = 0; s < numSamples; ++s)
-        {
-            const float driftIn = dR.getNextValue();
-            const float freqIn = fR.getNextValue();
-            const float resIn = rR.getNextValue();
-            const float k = 1.0f / std::max(resIn, 0.001f);
-
-            std::array<float, 8> a1{};
-            std::array<float, 8> a2{};
-            std::array<float, 8> a3{};
-            std::array<float, 8> currentK{};
-
-            for (size_t i = 0; i < 8; ++i)
-            {
-                const float detune = fast_exp2(driftIn * driftTable[i] * 6.37f);
-                const float driftedFrequency = freqIn * detune;
-
-                const float limitedFrequency = std::clamp(driftedFrequency, 20.0f, maxFrequency);
-
-                const float x = limitedFrequency * freqToTanScaler;
-                const float g = x * (1.0f + (x * x) * 0.333333f);
-
-                const float denominator = 1.0f + g * (g + k);
-                const float invDenominator = 1.0f / denominator;
-
-                a1[i] = invDenominator;
-                a2[i] = (g * invDenominator);
-                a3[i] = (g * g * invDenominator);
-                currentK[i] = (k);
-            }
-
-            std::array<float, 8> stageInputs{};
-            stageInputs[0] = buffer[s];
-            for (size_t i = 1; i < 8; ++i)
-            {
-                stageInputs[i] = rCh.stageOutHistory[i - 1];
-            }
-
-            for (size_t i = 0; i < 8; ++i)
-            {
-                const float v3 = stageInputs[i] - rCh.s2[i];
-                const float v1 = a1[i] * rCh.s1[i] + a2[i] * v3;
-                const float v2 = rCh.s2[i] + a2[i] * rCh.s1[i] + a3[i] * v3;
-
-                rCh.s1[i] = 2.0f * v1 - rCh.s1[i];
-                rCh.s2[i] = 2.0f * v2 - rCh.s2[i];
-
-                rCh.stageOutHistory[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
-            }
-            buffer[s] = rCh.stageOutHistory[7];
-        }
-    }
-
-    driftSmoothed = dR;
-    freqSmoothed = fR;
-    resSmoothed = rR;
+    driftSmoothed.skip(static_cast<int>(numSamples));
+    freqSmoothed.skip(static_cast<int>(numSamples));
+    resSmoothed.skip(static_cast<int>(numSamples));
 }
 
 void CascadeAPF::reset() noexcept
