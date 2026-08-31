@@ -89,22 +89,22 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
             stageInputs[0] = buffer[s];
             for (size_t i = 1; i < 8; ++i)
             {
-                stageInputs[i] = stageOutHistoryL[i - 1];
+                stageInputs[i] = lCh.stageOutHistory[i - 1];
             }
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float v3 = stageInputs[i] - s2L[i];
-                const float v1 = a1[i] * s1L[i] + a2[i] * v3;
-                const float v2 = s2L[i] + a2[i] * s1L[i] + a3[i] * v3;
+                const float v3 = stageInputs[i] - lCh.s2[i];
+                const float v1 = a1[i] * lCh.s1[i] + a2[i] * v3;
+                const float v2 = lCh.s2[i] + a2[i] * lCh.s1[i] + a3[i] * v3;
 
-                s1L[i] = 2.0f * v1 - s1L[i];
-                s2L[i] = 2.0f * v2 - s2L[i];
+                lCh.s1[i] = 2.0f * v1 - lCh.s1[i];
+                lCh.s2[i] = 2.0f * v2 - lCh.s2[i];
 
-                stageOutHistoryL[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
+                lCh.stageOutHistory[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
             }
 
-            buffer[s] = stageOutHistoryL[7];
+            buffer[s] = lCh.stageOutHistory[7];
         }
     }
 
@@ -163,21 +163,21 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
             stageInputs[0] = buffer[s];
             for (size_t i = 1; i < 8; ++i)
             {
-                stageInputs[i] = stageOutHistoryR[i - 1];
+                stageInputs[i] = rCh.stageOutHistory[i - 1];
             }
 
             for (size_t i = 0; i < 8; ++i)
             {
-                const float v3 = stageInputs[i] - s2R[i];
-                const float v1 = a1[i] * s1R[i] + a2[i] * v3;
-                const float v2 = s2R[i] + a2[i] * s1R[i] + a3[i] * v3;
+                const float v3 = stageInputs[i] - rCh.s2[i];
+                const float v1 = a1[i] * rCh.s1[i] + a2[i] * v3;
+                const float v2 = rCh.s2[i] + a2[i] * rCh.s1[i] + a3[i] * v3;
 
-                s1R[i] = 2.0f * v1 - s1R[i];
-                s2R[i] = 2.0f * v2 - s2R[i];
+                rCh.s1[i] = 2.0f * v1 - rCh.s1[i];
+                rCh.s2[i] = 2.0f * v2 - rCh.s2[i];
 
-                stageOutHistoryR[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
+                rCh.stageOutHistory[i] = stageInputs[i] - 2.0f * currentK[i] * v1;
             }
-            buffer[s] = stageOutHistoryR[7];
+            buffer[s] = rCh.stageOutHistory[7];
         }
     }
 
@@ -188,15 +188,10 @@ void CascadeAPF::process(const juce::dsp::AudioBlock<float>& block) noexcept
 
 void CascadeAPF::reset() noexcept
 {
-    s1L.fill(0.0f);
-    s2L.fill(0.0f);
-    s1R.fill(0.0f);
-    s2R.fill(0.0f);
+    lCh.reset();
+    rCh.reset();
 
     freqSmoothed.reset(currentSampleRate, 0.01);
     resSmoothed.reset(currentSampleRate, 0.01);
     driftSmoothed.reset(currentSampleRate, 0.01);
-
-    stageOutHistoryL.fill(0.0f);
-    stageOutHistoryR.fill(0.0f);
 }

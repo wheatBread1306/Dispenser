@@ -15,13 +15,26 @@ public:
     [[nodiscard]] static size_t getLatency() noexcept { return 7; }
 
 private:
-    alignas(32) std::array<float, 8> s1L{};
-    alignas(32) std::array<float, 8> s2L{};
-    alignas(32) std::array<float, 8> stageOutHistoryL{};
 
-    alignas(32) std::array<float, 8> s1R{};
-    alignas(32) std::array<float, 8> s2R{};
-    alignas(32) std::array<float, 8> stageOutHistoryR{};
+    struct filterHistory final
+    {
+        alignas(32) std::array<float, 8> s1{};
+        alignas(32) std::array<float, 8> s2{};
+        alignas(32) std::array<float, 8> stageOutHistory{};
+
+        void reset() noexcept
+        {
+            for (size_t i = 0; i < 8; ++i)
+            {
+                s1[i] = 0.0f;
+                s2[i] = 0.0f;
+                stageOutHistory[i] = 0.0f;
+            }
+        }
+    };
+
+    filterHistory lCh{};
+    filterHistory rCh{};
 
     juce::SmoothedValue<float> freqSmoothed{};
     juce::SmoothedValue<float> resSmoothed{};
