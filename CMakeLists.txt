@@ -28,7 +28,7 @@ juce_add_plugin(Dispenser
         NEEDS_MIDI_OUTPUT FALSE
         IS_MIDI_EFFECT FALSE
         EDITOR_WANTS_KEYBOARD_FOCUS FALSE
-        COPY_PLUGIN_AFTER_BUILD FALSE
+        COPY_PLUGIN_AFTER_BUILD TRUE
         PLUGIN_NAME "DISPENSER"
         COMPANY_NAME "WheatBreadPlugins"
         COMPANY_WEBSITE "https://wheadbread.dev/"
@@ -84,48 +84,25 @@ target_compile_definitions(Dispenser PUBLIC
         DONT_SET_USING_NAMESPACE_JUCE=1
 )
 
-# コンパイラフラグ
-target_compile_options(Dispenser PRIVATE
-        $<$<CXX_COMPILER_ID:Clang,MSVC>:/utf-8 /arch:AVX2 /external:W0 /W0>
-)
-
-target_compile_options(Dispenser PRIVATE
-        $<$<CONFIG:Release>:
-        $<$<CXX_COMPILER_ID:Clang,MSVC>:/fp:fast /Ox /Ob2 /Oi /Ot /GS- /Gy /Zc:rvalueCast>
-        $<$<CXX_COMPILER_ID:Clang>:
-        -w
-        -flto
-        -O3
-        >
-        >
-)
-
-target_link_options(Dispenser PRIVATE
-        $<$<CONFIG:Release>:
-        $<$<CXX_COMPILER_ID:Clang>:-fuse-ld=lld>
-        $<$<CXX_COMPILER_ID:Clang,MSVC>:/INCREMENTAL:NO /OPT:REF /OPT:ICF /LTCG>
-        >
-)
-
 if(MSVC)
     target_compile_options(Dispenser PRIVATE
-            $<$<CONFIG:Debug>:
-            /MP
-            /Zi
-            /Od
-            /GS-
-            /Gm-
-            /fsanitize=address
-            >
+            /utf-8
+            /external:W0
+            /W0
+    )
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|aarch64")
+        target_compile_options(Dispenser PRIVATE /arch:AVX2)
+    endif()
+
+    target_compile_options(Dispenser PRIVATE
+            $<$<CONFIG:Release>:/fp:fast /Ox /Ob2 /Oi /Ot /GS- /Gy /Zc:rvalueCast>
+            $<$<CONFIG:Debug>:/MP /Zi /Od /GS- /Gm- /fsanitize=address>
     )
 
     target_link_options(Dispenser PRIVATE
-            $<$<CONFIG:Debug>:
-            /INCREMENTAL
-            /OPT:NOREF
-            /OPT:NOICF
-            /fsanitize=address
-            >
+            $<$<CONFIG:Release>:/INCREMENTAL:NO /OPT:REF /OPT:ICF /LTCG>
+            $<$<CONFIG:Debug>:/INCREMENTAL /OPT:NOREF /OPT:NOICF /fsanitize=address>
     )
 
     target_compile_definitions(Dispenser PRIVATE
@@ -134,6 +111,25 @@ if(MSVC)
             _DISABLE_STRING_ANNOTATION=1
     )
 
+else()
+    target_compile_options(Dispenser PRIVATE
+            -w # 警告の抑制
+    )
+
+    # Release 時の最適化
+    target_compile_options(Dispenser PRIVATE
+            $<$<CONFIG:Release>:-O3 -ffast-math -flto>
+    )
+
+    target_link_options(Dispenser PRIVATE
+            $<$<CONFIG:Release>:-flto>
+    )
+
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+        target_compile_options(Dispenser PRIVATE
+                $<$<CONFIG:Release>:-mavx2>
+        )
+    endif()
 endif()
 
 # バイナリリソース（WAVファイル）の追加設定
