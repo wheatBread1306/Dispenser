@@ -112,7 +112,7 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
-The VST3 plug-in and standalone application are generated under `build/Dispenser_artefacts/Release/`. CMake downloads JUCE 9.0.0 during the first configure, so the initial configure requires network access. On Apple Silicon, the AVX2 optimization is not enabled; the build uses the native non-MSVC configuration instead.
+The VST3 plug-in and standalone application are generated under `build/Dispenser_artefacts/Release/`. CMake downloads JUCE 9.0.0 during the first configure, so the initial configure requires network access. On Apple Silicon, no additional architecture option is required in the CMake command because the default compiler configuration enables NEON.
 
 ## Project Layout
 
