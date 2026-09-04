@@ -55,14 +55,28 @@ The supplied configuration is primarily set up for Windows builds with MSVC or C
 
 ## Building
 
-### Pre-built VST3 and standalone binaries are available for Windows.
+### Windows
 
-Configure the project with CMake from the repository root. The following example uses the Visual Studio 2022 generator:
+Pre-built VST3 and standalone binaries are available for Windows.
+
+Install the following before configuring the project:
+
+- Visual Studio 2022 or newer with the **Desktop development with C++** workload
+- CMake 3.28 or newer
+- Git
+
+The Visual Studio workload should include the MSVC toolset, a Windows SDK, and CMake tools. Open a normal PowerShell window; CMake can select the installed Visual Studio toolchain automatically.
+
+Configure the project with CMake from the repository root. The following example uses the Visual Studio 2026 generator:
 
 ```powershell
+git clone https://github.com/wheatBread1306/Dispenser.git
+cd Dispenser
 cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 cmake --build build --config Release
 ```
+
+If your Visual Studio installation uses a different version, replace the generator name with the one reported by `cmake --help`, for example `Visual Studio 17 2022`. `-A x64` creates a 64-bit build, which is required for the AVX2 optimizations enabled by this project on compatible processors.
 
 For a debug build:
 
@@ -77,7 +91,28 @@ build/Dispenser_artefacts/Release/VST3/
 build/Dispenser_artefacts/Release/Standalone/
 ```
 
-The exact output layout can vary slightly by generator and platform. `COPY_PLUGIN_AFTER_BUILD` is disabled, so the VST3 bundle is not automatically copied to a system plug-in directory.
+The exact output layout can vary slightly by generator and platform.
+
+### Apple (macOS)
+
+Install Apple's lightweight command line tools and the build dependencies:
+
+```bash
+xcode-select --install
+brew install cmake ninja
+```
+
+Clone and build the project with the Ninja generator:
+
+```bash
+git clone https://github.com/wheatBread1306/Dispenser.git
+cd Dispenser
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
+```
+
+The VST3 plug-in and standalone application are generated under `build/Dispenser_artefacts/Release/`. CMake downloads JUCE 9.0.0 during the first configure, so the initial configure requires network access. On Apple Silicon, the AVX2 optimization is not enabled; the build uses the native non-MSVC configuration instead.
 
 ## Project Layout
 
